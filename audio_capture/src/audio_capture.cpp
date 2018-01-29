@@ -106,6 +106,17 @@ namespace audio_transport
 
           gst_bin_add_many( GST_BIN(_pipeline), _source, _filter, _convert, _encode, _sink, NULL);
           link_ok = gst_element_link_many(_source, _filter, _convert, _encode, _sink, NULL);
+        } else if (_format == "opus"){
+          _encode = gst_element_factory_make("opusenc", "encoder");
+          if (!_encode) {
+        	  ROS_ERROR_STREAM("Failed to create encoder element");
+        	  exitOnMainThread(1);
+          }
+          g_object_set( G_OBJECT(_encode), "complexity", 5, NULL);
+          g_object_set( G_OBJECT(_encode), "bitrate", _bitrate, NULL);
+
+          gst_bin_add_many( GST_BIN(_pipeline), _source, _filter, _convert, _encode, _sink, NULL);
+          link_ok = gst_element_link_many(_source, _filter, _convert, _encode, _sink, NULL);
         } else if (_format == "wave") {
           GstCaps *caps;
           caps = gst_caps_new_simple("audio/x-raw",
